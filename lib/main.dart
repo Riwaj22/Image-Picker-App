@@ -6,13 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(MyApp(
+
+));
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      initialRoute:'a',
+      routes: {
+        'a': (context) => MyHomePage(),
+      },
       title: 'Flutter Demo',
       theme: ThemeData(
         backgroundColor: Color(0XFF8b32a8),
@@ -167,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       title: Text("Predicted Text"),
       content: GestureDetector(
-        onTap: () => Navigator.pop(context),
+        onTap: () => null,
         child: Container(
           //     color: Colors.blue,
             height: h,
@@ -179,7 +185,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       actions: [
         TextButton(onPressed: () {
-          Navigator.pop(context);
+          Navigator.pushNamed(context, 'a');
+
     },
     child: Text('OK'),),
       ],
@@ -195,4 +202,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
 
