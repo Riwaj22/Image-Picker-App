@@ -65,94 +65,118 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
 
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+      context: context,
+      builder: (context) => new AlertDialog(
+        title: new Text('Are you sure?'),
+        content: new Text('Do you want to exit the App'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: new Text('No'),
+          ),
+          TextButton(
+            onPressed: () =>
+                exit(0),//outside the app
+            child: new Text('Yes'),
+          ),
+        ],
+      ),
+    )) ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xffA5A4A4),
-      appBar: AppBar(
-        title: Center(child: Text("Upload Image")),
-        backgroundColor:Color(0XFF8b32a8) ,
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Center(
+    return new WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: Color(0xffA5A4A4),
+        appBar: AppBar(
+          title: Center(child: Text("Upload Image")),
+          backgroundColor:Color(0XFF8b32a8) ,
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Center(
 
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: 200.0,
-              child: Center(
-                child: image == null
-                    ? Text("No Image is picked")
-                    : Image.file(image!),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 200.0,
+                child: Center(
+                  child: image == null
+                      ? Text("No Image is picked")
+                      : Image.file(image!),
+                ),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              FloatingActionButton(
-                onPressed: pickImage,
-                tooltip: "Pick Image From Gallery",
-                child: Icon(Icons.folder),
-              ),
-              FloatingActionButton(
-                onPressed: pickImagefromCamera,
-                tooltip: "Pick Image From Camera",
-                child: Icon(Icons.camera_alt),
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          Container(
-            alignment: Alignment.center,
-
-            child: ElevatedButton(
-
-              style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    side: BorderSide(color: Colors.red)
-                  )
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                FloatingActionButton(
+                  onPressed: pickImage,
+                  tooltip: "Pick Image From Gallery",
+                  child: Icon(Icons.folder),
+                ),
+                FloatingActionButton(
+                  onPressed: pickImagefromCamera,
+                  tooltip: "Pick Image From Camera",
+                  child: Icon(Icons.camera_alt),
                 )
-              ),
+              ],
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            Container(
+              alignment: Alignment.center,
 
-                onPressed: () {
-                Container(
-                  child: image == null
-                      ?Text('Please select an image')
-                      :Image.file(image!)
-                );
+              child: ElevatedButton(
 
-                 Container(child:showAlertDialog(context, 'hello'),);
-                } ,
+                style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(color: Colors.red)
+                    )
+                  )
+                ),
 
-                child: Text(
-                  'Predict',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                  onPressed: () {
+                  Container(
+                    child: image == null
+                        ?Text('Please select an image')
+                        :Image.file(image!)
+                  );
 
-                  ),
-                )),
-          )
+                   Container(child:showAlertDialog(context, 'hello'),);
+                  } ,
 
-        ],
+                  child: Text(
+                    'Predict',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+
+                    ),
+                  )),
+            )
+
+          ],
+
+        ),
+
+
 
       ),
-
-
-
     );
 
   }
@@ -195,7 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (BuildContext context) {
         Future.delayed(Duration(seconds: 10), () {
-
+Navigator.pop(context);
         });
         return alert;
       },
