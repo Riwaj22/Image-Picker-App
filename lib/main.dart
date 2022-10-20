@@ -103,32 +103,15 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {});
     }
   }
-  Future<bool> _onWillPop() async {
-    return (await showDialog(
-      context: context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to exit the App'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: new Text('No'),
-          ),
-          TextButton(
-            onPressed: () =>
-                exit(0),//outside the app
-            child: new Text('Yes'),
-          ),
-        ],
-      ),
-    )) ?? false;
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
-      onWillPop: _onWillPop,
+    return RefreshIndicator(
+      onRefresh: test,
+
       child: Scaffold(
+
         backgroundColor: Color(0xffA5A4A4),
         appBar: AppBar(
           title: Center(child: Text("Upload Image")),
@@ -146,6 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: MediaQuery.of(context).size.width,
                 height: 200.0,
                 child: Center(
+
                   child: image == null
                       ? Text("No Image is picked")
                       : Image.file(image!),
@@ -261,6 +245,14 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         return alert;
       },
+
+    );
+  }
+  Future<String> test () async {
+    return Future.delayed(
+      Duration(microseconds: 10),
+
+
     );
   }
 }
