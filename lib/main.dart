@@ -114,7 +114,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
         backgroundColor: Color(0xffA5A4A4),
         appBar: AppBar(
+
           title: Center(child: Text("Upload Image")),
+          leading: IconButton(
+        icon: Icon(Icons.refresh),
+            onPressed: () {
+             Navigator.pushNamed(context, 'a');
+            },
+
+          ),
           backgroundColor:Color(0XFF8b32a8) ,
         ),
         body: Column(
@@ -190,7 +198,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
                     ),
                   )),
+
+
+
             )
+
 
           ],
 
