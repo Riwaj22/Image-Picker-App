@@ -5,6 +5,7 @@ import 'package:async_button_builder/async_button_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 void main() => runApp(MyApp(
 
@@ -43,8 +44,10 @@ class _MyHomePageState extends State<MyHomePage> {
       if(image == null) return;
 
       final imageTemp = File(image.path);
-
+      _cropImage(imageTemp.path);
       setState(() => this.image = imageTemp);
+
+      //cropping of image
     } on PlatformException catch(e) {
       print('Failed to pick image: $e');
     }
@@ -52,19 +55,54 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   Future pickImagefromCamera() async {
     try {
-      final image = await ImagePicker().pickImage(source: ImageSource.camera);
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+
+         );
 
       if(image == null) return;
 
       final imageTemp = File(image.path);
 
-      setState(() => this.image = imageTemp);
+     setState(() {
+       this.image = imageTemp;
+
+
+
+     });
+      _cropImage(image.path);
     } on PlatformException catch(e) {
       print('Failed to pick image: $e');
     }
 
   }
+  _cropImage(filePath) async {
+    File? croppedImage = await ImageCropper().cropImage(
+      sourcePath: filePath,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      androidUiSettings: AndroidUiSettings(
+        toolbarTitle: 'Image Cropper',
+        toolbarColor: Colors.green[700],
+        toolbarWidgetColor: Colors.white,
+        activeControlsWidgetColor: Colors.green[700],
+        initAspectRatio: CropAspectRatioPreset.original,
+        lockAspectRatio: false,
+      ),
+      maxWidth: 1080,
+      maxHeight: 1080,
+    );
 
+    if (croppedImage != null) {
+      image = croppedImage;
+      setState(() {});
+    }
+  }
   Future<bool> _onWillPop() async {
     return (await showDialog(
       context: context,
@@ -137,25 +175,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
               child: ElevatedButton(
 
-                style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                    backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      side: BorderSide(color: Colors.red)
-                    )
-                  )
-                ),
+                  style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              side: BorderSide(color: Colors.red)
+                          )
+                      )
+                  ),
 
                   onPressed: () {
-                  Container(
-                    child: image == null
-                        ?Text('Please select an image')
-                        :Image.file(image!)
-                  );
+                    Container(
+                        child: image == null
+                            ?Text('Please select an image')
+                            :Image.file(image!)
+                    );
 
-                   Container(child:showAlertDialog(context, 'hello'),);
+                    Container(child:showAlertDialog(context, 'hello'),);
                   } ,
 
                   child: Text(
@@ -211,8 +249,8 @@ class _MyHomePageState extends State<MyHomePage> {
         TextButton(onPressed: () {
           Navigator.pushNamed(context, 'a');
 
-    },
-    child: Text('OK'),),
+        },
+          child: Text('OK'),),
       ],
     );
     showDialog(
