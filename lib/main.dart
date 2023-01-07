@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 void main() => runApp(MyApp(
-
 ));
 
 class MyApp extends StatelessWidget {
@@ -20,9 +19,10 @@ class MyApp extends StatelessWidget {
       routes: {
         'a': (context) => MyHomePage(),
       },
-      title: 'Flutter Demo',
+      title: 'Prachalit Lipi',
       theme: ThemeData(
-        backgroundColor: Color(0XFF8b32a8),
+        backgroundColor: Colors.blueGrey,
+
       ),
       home: MyHomePage(),
     );
@@ -127,25 +127,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
+    return WillPopScope(
       onWillPop: _onWillPop,
       child: RefreshIndicator(
         onRefresh: test,
 
         child: Scaffold(
+            backgroundColor:Colors.grey,
 
-          backgroundColor: Color(0xffA5A4A4),
           appBar: AppBar(
 
-            title: Center(child: Text("Upload Image")),
+            title: Center(child: Text("Upload Image",
+
+                selectionColor: Color(0xFF00008B),
+              style: TextStyle(
+              fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            )),
             leading: IconButton(
+              color: Colors.black,
           icon: Icon(Icons.refresh),
               onPressed: () {
                Navigator.pushNamed(context, 'a');
               },
 
             ),
-            backgroundColor:Color(0XFF8b32a8) ,
+
+            backgroundColor: Color(0xFF6132a8),
+
+
           ),
           body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -170,11 +181,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   FloatingActionButton(
+                    backgroundColor: Color(0xFF6132a8),
                     onPressed: pickImage,
                     tooltip: "Pick Image From Gallery",
                     child: Icon(Icons.folder),
                   ),
                   FloatingActionButton(
+                    backgroundColor: Color(0xFF6132a8),
                     onPressed: pickImagefromCamera,
                     tooltip: "Pick Image From Camera",
                     child: Icon(Icons.camera_alt),
@@ -190,12 +203,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: ElevatedButton(
 
                     style: ButtonStyle(
-                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                        foregroundColor: MaterialStateProperty.all<Color>(Color(0xFF6132a8)),
+                        backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF6132a8)),
                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10.0),
-                                side: BorderSide(color: Colors.red)
+                                side: BorderSide(color: Color(0xFF6132a8))
                             )
                         )
                     ),
@@ -207,14 +220,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               :Image.file(image!)
                       );
 
-                      Container(child:showAlertDialog(context, 'hello'),);
+                      Container(child:showAlertDialog(context, 'PREDICTION'),);
                     } ,
 
                     child: Text(
                       'Predict',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.orangeAccent,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
 
