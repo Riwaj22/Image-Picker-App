@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
-
+import 'package:http/http.dart';
 void main() => runApp(AboutPage());
 
 class AboutPage extends StatefulWidget {
@@ -35,9 +35,45 @@ class _AboutPageState extends State<AboutPage> {
               child: Text('Prachalit Nepal script is a type of abugida script developed from the Nepalese scripts, which are a part of the family of Brahmic scripts descended from Brahmi script. It is used to write Nepal Bhasa, Sanskrit and Pali. Various publications are still published in this script including the Sikkim Herald the bulletin of the Sikkim government (Newari edition)'),
 
             ),
-             Image.network(
-              ' https://upload.wikimedia.org/wikipedia/commons/a/a7/Prachalit_consonants.png',
-            ),
+           Column(
+
+             children:<Widget> [
+
+               Image.network(
+                 'https://upload.wikimedia.org/wikipedia/commons/a/a7/Prachalit_consonants.png',
+               ),
+               Padding(
+                 padding: const EdgeInsets.all(16.0),
+
+                 child: Text('Consonants',
+                   style: TextStyle(fontSize: 8),
+                 ),
+
+               ),
+
+               Image.network(
+                 'https://upload.wikimedia.org/wikipedia/commons/f/f3/Prachalit_vowels.png',
+               ),
+               Padding(
+                 padding: const EdgeInsets.all(16.0),
+                 child: Text('Vowels',
+                   style: TextStyle(fontSize: 8),
+                 ),
+
+               ),
+
+               Image.network(
+                 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Prachalit_digits.png',
+               ),
+               Padding(
+                 padding: const EdgeInsets.all(16.0),
+                 child: Text('Numbers',
+                   style: TextStyle(fontSize: 8),
+                 ),
+
+               ),
+             ],
+           ),
           ],
         ),
 
