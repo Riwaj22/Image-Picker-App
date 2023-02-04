@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:async_button_builder/async_button_builder.dart';
@@ -138,8 +139,25 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     bool _imagesubmitted = false;
-    void _submitimage() {
-      Navigator.pushNamed(context, 'b');
+    Future<bool> popout() async {
+      return (await showDialog(
+        context: context,
+        builder: (context) => new AlertDialog(
+          title: new Text('Prediction'),
+          content: new Text('A'),
+          actions: <Widget>[
+
+            TextButton(
+              onPressed: () =>
+                  Navigator.pushNamed(context, 'a'),//outside the app
+              child: Center(child: new Text('OK')),
+            ),
+          ],
+        ),
+      )) ?? false;
+    }
+     void _submitimage()  {
+       popout();
     };
     bool _conditionMet = false;
     void _checkCondition() {
