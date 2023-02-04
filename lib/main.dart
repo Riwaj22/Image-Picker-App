@@ -2,12 +2,13 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:async_button_builder/async_button_builder.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
+import 'AboutPage.dart';
 
 void main() => runApp(MyApp(
 ));
@@ -20,6 +21,8 @@ class MyApp extends StatelessWidget {
       initialRoute:'a',
       routes: {
         'a': (context) => MyHomePage(),
+        'b': (context) => AboutPage()
+
       },
       title: 'Prachalit Lipi',
       theme: ThemeData(
@@ -39,6 +42,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   File? image;
   bool progress = false;
+  bool _imagesubmitted = false;
+
+
   Future pickImage() async {
     try {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -60,18 +66,18 @@ class _MyHomePageState extends State<MyHomePage> {
       final image = await ImagePicker().pickImage(
         source: ImageSource.camera,
 
-         );
+      );
 
       if(image == null) return;
 
       final imageTemp = File(image.path);
 
-     setState(() {
-       this.image = imageTemp;
+      setState(() {
+        this.image = imageTemp;
 
 
 
-     });
+      });
       _cropImage(image.path);
     } on PlatformException catch(e) {
       print('Failed to pick image: $e');
@@ -129,126 +135,147 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool _imagesubmitted = false;
+    void _submitimage() {
+      Navigator.pushNamed(context, 'b');
+    };
+    bool _conditionMet = false;
+    void _checkCondition() {
+      if (image==null) {
+        _conditionMet = false;
+      }
+      else{
+        _conditionMet = true;
+      }
+    }
     return WillPopScope(
-      onWillPop: _onWillPop,
-      child: RefreshIndicator(
-        onRefresh: test,
+    onWillPop: _onWillPop,
+    child: RefreshIndicator(
+    onRefresh: test,
 
-        child: Scaffold(
-            backgroundColor:Colors.grey,
+    child: Scaffold(
+    backgroundColor:Colors.grey,
 
-          appBar: AppBar(
+    appBar: AppBar(
 
-            title: Center(child: Text("Upload Image",
+    title: Center(child: Text("Upload Image",
 
-                selectionColor: Color(0xFF00008B),
-              style: TextStyle(
-              fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            )),
-            leading: IconButton(
-              color: Colors.black,
-          icon: Icon(Icons.refresh),
-              onPressed: () {
-               Navigator.pushNamed(context, 'a');
-              },
+    selectionColor: Color(0xFF00008B),
+    style: TextStyle(
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+    ),
+    )),
+    leading: IconButton(
+    color: Colors.black,
+    icon: Icon(Icons.refresh),
+    onPressed: () {
+    Navigator.pushNamed(context, 'a');
+    },
 
-            ),
-
-            backgroundColor: Color(0xFF6132a8),
-
-
-          ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Center(
-
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 200.0,
-                  child: Center(
-
-                    child: image == null
-                        ? Text("No Image is picked")
-                        : Image.file(image!),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  FloatingActionButton(
-                    backgroundColor: Color(0xFF6132a8),
-                    onPressed: pickImage,
-                    tooltip: "Pick Image From Gallery",
-                    child: Icon(Icons.folder),
-                  ),
-                  FloatingActionButton(
-                    backgroundColor: Color(0xFF6132a8),
-                    onPressed: pickImagefromCamera,
-                    tooltip: "Pick Image From Camera",
-                    child: Icon(Icons.camera_alt),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Container(
-                alignment: Alignment.center,
-
-                child: ElevatedButton(
-
-                    style: ButtonStyle(
-                        foregroundColor: MaterialStateProperty.all<Color>(Color(0xFF6132a8)),
-                        backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF6132a8)),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                side: BorderSide(color: Color(0xFF6132a8))
-                            )
-                        )
-                    ),
-
-                    onPressed: () {
-                      Container(
-                          child: image == null
-                              ?Text('Please select an image')
-                              :Image.file(image!)
-                      );
-
-                      Container(child:showAlertDialog(context, 'PREDICTION'),);
-                    } ,
-
-                    child: Text(
-                      'Predict',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.orangeAccent,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-
-                      ),
-                    )),
+    ),
 
 
 
-              )
+    backgroundColor: Color(0xFF6132a8),
 
 
-            ],
+    ),
+    body: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+    Center(
 
-          ),
+    ),
+    Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Container(
+    width: MediaQuery.of(context).size.width,
+    height: 200.0,
+    child: Center(
+
+   child:image == null
+       ? Text("No Image is picked")
+       : Image.file(image!),
+
+    ),
+    ),
+    ),
+    Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: <Widget>[
+    FloatingActionButton(
+    backgroundColor: Color(0xFF6132a8),
+    onPressed: pickImage,
+    tooltip: "Pick Image From Gallery",
+    child: Icon(Icons.folder),
+    ),
+    FloatingActionButton(
+    backgroundColor: Color(0xFF6132a8),
+    onPressed: pickImagefromCamera,
+    tooltip: "Pick Image From Camera",
+    child: Icon(Icons.camera_alt),
+    )
+    ],
+    ),
+    const SizedBox(
+    height: 30,
+    ),
+   Column(
+     children: [
+       CupertinoButton(
+
+         child: Text('Predict',
+             style: TextStyle(
+               color: Color(0xFF6132a8),
+             ),
+           ),
+           onPressed:  () {
+             if(image == null) {
+
+               return null;
+
+             }
+
+             _submitimage();
+
+       },
+
+       ),
+     ],
+   ),
+
+    Padding(
+
+    padding:  EdgeInsets.only(left: 180.0,top: 30.0),
+
+    child: FloatingActionButton(
+
+
+    backgroundColor: Color(0xFF6132a8),
+    tooltip: 'Help',
+    child: Icon(Icons.question_mark_outlined),
+    onPressed: () {
+
+    Navigator.pushNamed(context, 'b');
+    },
+
+    ),
+    ),
+    ],
 
 
 
-        ),
-      ),
+    ),
+
+
+    ),
+
+
+    ),
+
+
+
     );
 
   }
@@ -304,7 +331,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
     );
+
+
   }
+
+
 }
 
 
