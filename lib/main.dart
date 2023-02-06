@@ -14,10 +14,28 @@ import 'dart:typed_data';
 import 'package:tflite/tflite.dart';
 
 // Loading the Tensorflow model here
-String model = await TFlife.loadModel(
-  model: 'LENET.tflite',
-  labels: '',
-)
+loadModel() async {
+  await Tflite.loadModel(
+    model: 'assets/LENET.tflite',
+    labels: 'assets/labels.txt'
+  );
+}
+
+// Image classification function here
+classifyImage(image) async {
+  var output = await Tflite.runModelOnImage(
+      path: image.path,
+      numResults: 5,
+      threshold: 0.5,
+      imageMean: 127.5,
+      imageStd: 127.5,
+  );
+
+  setState(() {
+    _output = output!;
+    _loading = false;
+  });
+}
 
 // Main function starts here
 void main() => runApp(MyApp(
@@ -87,9 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
       setState(() {
         this.image = imageTemp;
-
-
-
       });
       _cropImage(image.path);
     } on PlatformException catch(e) {
@@ -127,18 +142,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<bool> _onWillPop() async {
     return (await showDialog(
       context: context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to exit the App'),
+      builder: (context) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: const Text('Do you want to exit the App'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: new Text('No'),
+            child: const Text('No'),
           ),
           TextButton(
             onPressed: () =>
                 exit(0),//outside the app
-            child: new Text('Yes'),
+            child: const Text('Yes'),
           ),
         ],
       ),
@@ -152,21 +167,24 @@ class _MyHomePageState extends State<MyHomePage> {
     Future<bool> popout() async {
       return (await showDialog(
         context: context,
-        builder: (context) => new AlertDialog(
-          title: new Text('Prediction'),
-          content: new Text('A'),
+        builder: (context) => AlertDialog(
+          title: const Text('Prediction'),
+          content: const Text('A'),
           actions: <Widget>[
 
             TextButton(
               onPressed: () =>
                   Navigator.pushNamed(context, 'a'),//outside the app
-              child: Center(child: new Text('OK')),
+              child: Center(child: const Text('OK')),
             ),
           ],
         ),
       )) ?? false;
     }
-     void _submitimage()  {
+
+    // Function taking the image in
+    void _submitImage(image)  {
+       classifyImage(image);
        popout();
     };
     bool _conditionMet = false;
@@ -188,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     appBar: AppBar(
 
-    title: Center(child: Text("Upload Image",
+    title: const Center(child: Text("Upload Image",
 
     selectionColor: Color(0xFF00008B),
     style: TextStyle(
@@ -198,7 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
     )),
     leading: IconButton(
     color: Colors.black,
-    icon: Icon(Icons.refresh),
+    icon: const Icon(Icons.refresh),
     onPressed: () {
     Navigator.pushNamed(context, 'a');
     },
@@ -207,14 +225,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-    backgroundColor: Color(0xFF6132a8),
+    backgroundColor: const Color(0xFF6132a8),
 
 
     ),
     body: Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
-    Center(
+    const Center(
 
     ),
     Padding(
@@ -244,7 +262,7 @@ class _MyHomePageState extends State<MyHomePage> {
     backgroundColor: Color(0xFF6132a8),
     onPressed: pickImagefromCamera,
     tooltip: "Pick Image From Camera",
-    child: Icon(Icons.camera_alt),
+    child: const Icon(Icons.camera_alt),
     )
     ],
     ),
@@ -254,8 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
    Column(
      children: [
        CupertinoButton(
-
-         child: Text('Predict',
+         child: const Text('Predict',
              style: TextStyle(
                color: Color(0xFF6132a8),
              ),
@@ -267,8 +284,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
              }
 
-             _submitimage();
-
+             _submitImage(image);
        },
 
        ),
