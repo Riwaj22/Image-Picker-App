@@ -30,6 +30,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  tflite: 1.1.2
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -98,3 +100,5 @@ flutter:
 
 assets:
   - assets/images/CONSONANTS.png
+  - assets/LENET.tflite
+  - assets/labels.txt

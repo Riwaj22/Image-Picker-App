@@ -10,10 +10,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:http/http.dart' as http;
 import 'AboutPage.dart';
+import 'dart:typed_data';
+import 'package:tflite/tflite.dart';
 
+// Loading the Tensorflow model here
+String model = await TFlife.loadModel(
+  model: 'LENET.tflite',
+  labels: '',
+)
+
+// Main function starts here
 void main() => runApp(MyApp(
 ));
 
+// All the app stuffs are here
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
