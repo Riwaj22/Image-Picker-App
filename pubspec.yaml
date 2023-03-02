@@ -100,5 +100,3 @@ flutter:
 
 assets:
   - assets/images/CONSONANTS.png
-  - assets/LENET.tflite
-  - assets/labels.txt

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -11,35 +10,13 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:http/http.dart' as http;
 import 'AboutPage.dart';
 import 'dart:typed_data';
-import 'package:tflite/tflite.dart';
+import 'package:http/http.dart' as http;
 
-// Loading the Tensorflow model here
-loadModel() async {
-  await Tflite.loadModel(
-    model: 'assets/LENET.tflite',
-    labels: 'assets/labels.txt'
-  );
-}
-
-// Image classification function here
-classifyImage(image) async {
-  var output = await Tflite.runModelOnImage(
-      path: image.path,
-      numResults: 5,
-      threshold: 0.5,
-      imageMean: 127.5,
-      imageStd: 127.5,
-  );
-
-  setState(() {
-    _output = output!;
-    _loading = false;
-  });
-}
+// Backend URL goes here
+var BACKEND_URL = 'https://127.0.1.1/uploadimage';
 
 // Main function starts here
-void main() => runApp(MyApp(
-));
+void main() => runApp(MyApp());
 
 // All the app stuffs are here
 class MyApp extends StatelessWidget {
@@ -48,17 +25,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-      initialRoute:'a',
-      routes: {
-        'a': (context) => MyHomePage(),
-        'b': (context) => AboutPage()
-
-      },
+      initialRoute: 'a',
+      routes: {'a': (context) => MyHomePage(), 'b': (context) => AboutPage()},
       title: 'Prachalit Lipi',
       theme: ThemeData(
         backgroundColor: Colors.blueGrey,
-
       ),
       home: MyHomePage(),
     );
@@ -75,31 +46,29 @@ class _MyHomePageState extends State<MyHomePage> {
   bool progress = false;
   bool _imagesubmitted = false;
 
-
   Future pickImage() async {
     try {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-      if(image == null) return;
+      if (image == null) return;
 
       final imageTemp = File(image.path);
       _cropImage(imageTemp.path);
       setState(() => this.image = imageTemp);
 
       //cropping of image
-    } on PlatformException catch(e) {
+    } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
-
   }
+
   Future pickImagefromCamera() async {
     try {
       final image = await ImagePicker().pickImage(
         source: ImageSource.camera,
-
       );
 
-      if(image == null) return;
+      if (image == null) return;
 
       final imageTemp = File(image.path);
 
@@ -107,11 +76,11 @@ class _MyHomePageState extends State<MyHomePage> {
         this.image = imageTemp;
       });
       _cropImage(image.path);
-    } on PlatformException catch(e) {
+    } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
-
   }
+
   _cropImage(filePath) async {
     File? croppedImage = await ImageCropper().cropImage(
       sourcePath: filePath,
@@ -139,249 +108,211 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {});
     }
   }
+
   Future<bool> _onWillPop() async {
     return (await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Are you sure?'),
-        content: const Text('Do you want to exit the App'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: const Text('Do you want to exit the App'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => exit(0), //outside the app
+                child: const Text('Yes'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () =>
-                exit(0),//outside the app
-            child: const Text('Yes'),
-          ),
-        ],
-      ),
-    )) ?? false;
+        )) ??
+        false;
   }
-
 
   @override
   Widget build(BuildContext context) {
     bool _imagesubmitted = false;
     Future<bool> popout() async {
       return (await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Prediction'),
-          content: const Text('A'),
-          actions: <Widget>[
-
-            TextButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, 'a'),//outside the app
-              child: Center(child: const Text('OK')),
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Prediction'),
+              content: const Text('A'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pushNamed(context, 'a'), //outside the app
+                  child: Center(child: const Text('OK')),
+                ),
+              ],
             ),
-          ],
-        ),
-      )) ?? false;
+          )) ??
+          false;
     }
 
     // Function taking the image in
-    void _submitImage(image)  {
-       classifyImage(image);
-       popout();
-    };
+    Future _submitImage(image) async {
+      final url = BACKEND_URL;
+      var request = http.MultipartRequest('POST', Uri.parse(url));
+      request.files.add(await http.MultipartFile.fromPath('image', image));
+
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        print('Image Uploaded Successfully');
+      } else {
+        print('Image upload failed with status ${response.statusCode}');
+      }
+      popout();
+    }
+
     bool _conditionMet = false;
     void _checkCondition() {
-      if (image==null) {
+      if (image == null) {
         _conditionMet = false;
-      }
-      else{
+      } else {
         _conditionMet = true;
       }
     }
+
     return WillPopScope(
-    onWillPop: _onWillPop,
-    child: RefreshIndicator(
-    onRefresh: test,
+      onWillPop: _onWillPop,
+      child: RefreshIndicator(
+        onRefresh: test,
+        child: Scaffold(
+          backgroundColor: Colors.grey,
+          appBar: AppBar(
+            title: const Center(
+                child: Text(
+              "Upload Image",
+              selectionColor: Color(0xFF00008B),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            )),
+            leading: IconButton(
+              color: Colors.black,
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                Navigator.pushNamed(context, 'a');
+              },
+            ),
+            backgroundColor: const Color(0xFF6132a8),
+          ),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Center(),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 200.0,
+                  child: Center(
+                    child: image == null
+                        ? Text("No Image is picked")
+                        : Image.file(image!),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  FloatingActionButton(
+                    backgroundColor: Color(0xFF6132a8),
+                    onPressed: pickImage,
+                    tooltip: "Pick Image From Gallery",
+                    child: Icon(Icons.folder),
+                  ),
+                  FloatingActionButton(
+                    backgroundColor: Color(0xFF6132a8),
+                    onPressed: pickImagefromCamera,
+                    tooltip: "Pick Image From Camera",
+                    child: const Icon(Icons.camera_alt),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Column(
+                children: [
+                  CupertinoButton(
+                    child: const Text(
+                      'Predict',
+                      style: TextStyle(
+                        color: Color(0xFF6132a8),
+                      ),
+                    ),
+                    onPressed: () {
+                      if (image == null) {
+                        return null;
+                      }
 
-    child: Scaffold(
-    backgroundColor:Colors.grey,
-
-    appBar: AppBar(
-
-    title: const Center(child: Text("Upload Image",
-
-    selectionColor: Color(0xFF00008B),
-    style: TextStyle(
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-    ),
-    )),
-    leading: IconButton(
-    color: Colors.black,
-    icon: const Icon(Icons.refresh),
-    onPressed: () {
-    Navigator.pushNamed(context, 'a');
-    },
-
-    ),
-
-
-
-    backgroundColor: const Color(0xFF6132a8),
-
-
-    ),
-    body: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: <Widget>[
-    const Center(
-
-    ),
-    Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Container(
-    width: MediaQuery.of(context).size.width,
-    height: 200.0,
-    child: Center(
-
-   child:image == null
-       ? Text("No Image is picked")
-       : Image.file(image!),
-
-    ),
-    ),
-    ),
-    Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: <Widget>[
-    FloatingActionButton(
-    backgroundColor: Color(0xFF6132a8),
-    onPressed: pickImage,
-    tooltip: "Pick Image From Gallery",
-    child: Icon(Icons.folder),
-    ),
-    FloatingActionButton(
-    backgroundColor: Color(0xFF6132a8),
-    onPressed: pickImagefromCamera,
-    tooltip: "Pick Image From Camera",
-    child: const Icon(Icons.camera_alt),
-    )
-    ],
-    ),
-    const SizedBox(
-    height: 30,
-    ),
-   Column(
-     children: [
-       CupertinoButton(
-         child: const Text('Predict',
-             style: TextStyle(
-               color: Color(0xFF6132a8),
-             ),
-           ),
-           onPressed:  () {
-             if(image == null) {
-
-               return null;
-
-             }
-
-             _submitImage(image);
-       },
-
-       ),
-     ],
-   ),
-
-    Padding(
-
-    padding:  EdgeInsets.only(left: 180.0,top: 30.0),
-
-    child: FloatingActionButton(
-
-
-    backgroundColor: Color(0xFF6132a8),
-    tooltip: 'Help',
-    child: Icon(Icons.question_mark_outlined),
-    onPressed: () {
-
-    Navigator.pushNamed(context, 'b');
-    },
-
-    ),
-    ),
-    ],
-
-
-
-    ),
-
-
-    ),
-
-
-    ),
-
-
-
+                      _submitImage(image);
+                    },
+                  ),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 180.0, top: 30.0),
+                child: FloatingActionButton(
+                  backgroundColor: Color(0xFF6132a8),
+                  tooltip: 'Help',
+                  child: Icon(Icons.question_mark_outlined),
+                  onPressed: () {
+                    Navigator.pushNamed(context, 'b');
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-
   }
-  showAlertDialog(BuildContext context,String x) {
-    double h = MediaQuery
-        .of(context)
-        .size
-        .height;
-    double w = MediaQuery
-        .of(context)
-        .size
-        .width;
+
+  showAlertDialog(BuildContext context, String x) {
+    double h = MediaQuery.of(context).size.height;
+    double w = MediaQuery.of(context).size.width;
 
     AlertDialog alert = AlertDialog(
       backgroundColor: Colors.transparent,
-
       elevation: 0,
-
       title: Text("Predicted Text"),
       content: GestureDetector(
         onTap: () => null,
         child: Container(
-          //     color: Colors.blue,
+            //     color: Colors.blue,
             height: h,
             width: w,
             child: Text(
-              x, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),)
-        ),
+              x,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            )),
       ),
-
       actions: [
-        TextButton(onPressed: () {
-          Navigator.pushNamed(context, 'a');
-
-        },
-          child: Text('OK'),),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamed(context, 'a');
+          },
+          child: Text('OK'),
+        ),
       ],
     );
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        Future.delayed(Duration(seconds: 10), () {
-
-        });
+        Future.delayed(Duration(seconds: 10), () {});
         return alert;
       },
-
     );
   }
-  Future<String> test () async {
+
+  Future<String> test() async {
     return Future.delayed(
       Duration(microseconds: 10),
-
-
     );
-
-
   }
-
-
 }
-
-
